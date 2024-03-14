@@ -5,6 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from llama_index.data_structs.node_v2 import Node
 from llama_index import GPTTreeIndex
 
+from llama_index import (
+    GPTVectorStoreIndex,
+    download_loader,
+    LLMPredictor,
+    ServiceContext,
+)
+from langchain.chat_models import ChatOpenAI
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -67,6 +75,13 @@ async def get_response(video_id: str, question: str):
 
         index = GPTTreeIndex.load_from_disk(f"data/gpt_index/{video_id}.json")
 
+        llm_predictor = LLMPredictor(
+            llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+        )
+        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+        index = GPTTreeIndex.load_from_disk(
+            f"data/gpt_index/{video_id}.json", service_context=service_context
+        )
         response = index.query(f"{system_prompt}\n{question}")
         source = " ".join(
             [node_with_score.node.doc_id for node_with_score in response.source_nodes]
