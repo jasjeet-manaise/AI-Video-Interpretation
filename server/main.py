@@ -58,6 +58,10 @@ async def root():
 @app.get("/getAns/{video_id}")
 async def get_response(video_id: str, question: str):
     try:
+        llm_predictor = LLMPredictor(
+            llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+        )
+        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
         filenames = os.listdir("data/gpt_index")
         file_loc = f"{video_id}.json"
         if file_loc not in filenames:
@@ -69,16 +73,11 @@ async def get_response(video_id: str, question: str):
             data = json.load(open(file=f"data/timechunks/{video_id}.json", mode="r"))
             # keys, text = list(zip(*data.items()))
             nodes = [Node(text=text, doc_id=keys) for keys, text in data.items()]
-            index = GPTTreeIndex(nodes=nodes)
+            index = GPTTreeIndex(nodes=nodes, service_context=service_context)
             # save it
             index.save_to_disk(f"data/gpt_index/{video_id}.json")
 
-        index = GPTTreeIndex.load_from_disk(f"data/gpt_index/{video_id}.json")
-
-        llm_predictor = LLMPredictor(
-            llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-        )
-        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
+        
         index = GPTTreeIndex.load_from_disk(
             f"data/gpt_index/{video_id}.json", service_context=service_context
         )

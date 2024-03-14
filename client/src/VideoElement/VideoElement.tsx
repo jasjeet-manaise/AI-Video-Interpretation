@@ -23,9 +23,9 @@ function VideoElement() {
         addTimestampsToYouTubeURL(embedUrl, getStartTime(response.sources))
       );
       setInputValue("");
-      setSelectedOption(
-        extractVideoId(convertToEmbedURLfromYoutubeURl(inputValue))
-      );
+      // setSelectedOption(
+      //   extractVideoId(convertToEmbedURLfromYoutubeURl(inputValue))
+      // );
     }
   }, [response]);
 
