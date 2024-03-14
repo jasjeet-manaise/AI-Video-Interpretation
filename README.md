@@ -1,4 +1,4 @@
-## hackathon 2k23
+## AI-Video-Interpretation
 
 - Ui discussion
 - Feature discussion
